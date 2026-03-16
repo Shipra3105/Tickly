@@ -38,6 +38,19 @@ class NotificationService {
     );
 
     await _notificationsPlugin.initialize(settings: settings);
+
+    // Create notification channel
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'tickly_channel',
+      'Tickly Notifications',
+      description: 'Notifications for task reminders',
+      importance: Importance.max,
+      playSound: true,
+    );
+
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(channel);
+
     await _requestPermissions();
   }
 
@@ -47,12 +60,15 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
     if (androidPlugin != null) {
       await androidPlugin.requestNotificationsPermission();
+      await androidPlugin.requestExactAlarmsPermission();
     }
   }
 
   static Future<void> scheduleNotification(
       int id, String title, String body, DateTime scheduledDate) async {
+    print('Scheduling notification: id=$id, title=$title, body=$body, date=$scheduledDate');
     final tz.TZDateTime tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
+    print('TZDate: $tzDate');
 
     await _notificationsPlugin.zonedSchedule(
       id: id,
@@ -70,5 +86,6 @@ class NotificationService {
       payload: 'task-$id',
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+    print('Notification scheduled successfully');
   }
 }
