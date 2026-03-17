@@ -46,6 +46,8 @@ class NotificationService {
       description: 'Notifications for task reminders',
       importance: Importance.max,
       playSound: true,
+      sound: RawResourceAndroidNotificationSound('notification'),
+      enableVibration: true,
     );
 
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
@@ -84,7 +86,7 @@ class NotificationService {
         ),
       ),
       payload: 'task-$id',
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
     print('Notification scheduled successfully');
   }
